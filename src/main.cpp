@@ -20,6 +20,7 @@
 #include "RestartHelper.h"
 #include "Scheduler.h"
 #include "SunPosition.h"
+#include "ModbusSunSpec.h"
 #include "Utils.h"
 #include "WebApi.h"
 #include "defaults.h"
@@ -153,6 +154,11 @@ void setup()
 
     Datastore.init(scheduler);
     RestartHelper.init(scheduler);
+
+    // Initialize Modbus SunSpec
+    MessageOutput.print(F("Initialize Modbus (SunSpec)... "));
+    ModbusSunSpec.init(scheduler);
+    MessageOutput.println(F("done"));
 }
 
 void loop()
