@@ -6,6 +6,7 @@
         "NTPSettings": "NTP Settings",
         "MQTTSettings": "MQTT Settings",
         "InverterSettings": "Inverter Settings",
+        "SunSpecSettings": "Modbus",
         "SecuritySettings": "Security Settings",
         "DTUSettings": "DTU Settings",
         "DeviceManager": "Device-Manager",
@@ -105,7 +106,8 @@
         "10002": "Authentication successful!",
         "11001": "@:apiresponse.2001",
         "11002": "@:apiresponse:5004",
-        "12001": "Profil must between 1 and {max} characters long!"
+        "12001": "Profil must between 1 and {max} characters long!",
+        "20001": "SunSpec settings changed."
     },
     "home": {
         "LiveData": "Live Data",
@@ -519,6 +521,25 @@
         "Delete": "Delete",
         "YieldDayCorrection": "Yield Day Correction",
         "YieldDayCorrectionHint": "Sum up daily yield even if the inverter is restarted. Value will be reset at midnight"
+    },
+    "sunspecadmin": {
+        "Modbus": "Modbus",
+        "Enabled": "Modbus interface enabled:",
+        "Manufacturer": "Manufacturer:",
+        "Model": "Model:",
+        "RemoteControl": "Control inverter power via Modbus:",
+        "PowerDivider": "Power Divider (W):",
+        "PowerDividerHint": "The power limit (Watt) is set to a multiple of this value.",
+        "SunSpecSettings": "SunSpec Settings",
+        "SunSpec": "SunSpec",
+        "MaxPower": "Maximum Power (W):",
+        "MaxPowerHint": "Inverter will be set to this maximum power value. All power limiting will be based on this value.",
+        "InverterEnabled": "Use inverter:",
+        "InverterEnabledHint": "Inverter will be used by the SunSpec interface.",
+        "ChannelAC": "AC Output {num}",
+        "PowerLimit": "Power Limit",
+        "OutputPhase": "Output / Phase Assignment",
+        "PhaseAC": "Phase L{num}"
     },
     "configadmin": {
         "ConfigManagement": "Config Management",
