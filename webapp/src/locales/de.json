@@ -6,6 +6,7 @@
         "NTPSettings": "NTP",
         "MQTTSettings": "MQTT",
         "InverterSettings": "Wechselrichter",
+        "SunSpecSettings": "Modbus",
         "SecuritySettings": "Sicherheit",
         "DTUSettings": "DTU",
         "DeviceManager": "Hardware",
@@ -102,7 +103,8 @@
         "10002": "Authentifizierung erfolgreich!",
         "11001": "@:apiresponse.2001",
         "11002": "@:apiresponse:5004",
-        "12001": "Profil muss zwischen 1 und {max} Zeichen lang sein!"
+        "12001": "Profil muss zwischen 1 und {max} Zeichen lang sein!",
+        "20001": "SunSpec Einstellungen gespeichert!"
     },
     "home": {
         "LiveData": "Live-Daten",
@@ -514,6 +516,23 @@
         "Delete": "Löschen",
         "YieldDayCorrection": "Tagesertragskorrektur",
         "YieldDayCorrectionHint": "Summiert den Tagesertrag, auch wenn der Wechselrichter neu gestartet wird. Der Wert wird um Mitternacht zurückgesetzt"
+    },
+    "sunspecadmin": {
+        "Modbus": "Modbus",
+        "Enabled": "Datenausgabe über Modbus:",
+        "Manufacturer": "Hersteller:",
+        "Model": "Modellbezeichnung:",
+        "RemoteControl": "Wechselrichter-Steuerung über Modbus:",
+        "SunSpecSettings": "Modbus Schnittstelle",
+        "SunSpec": "SunSpec",
+        "MaxPower": "Maximale Leistung (W):",
+        "MaxPowerHint": "Wechselrichter wrid auf diese maximale Leistung eingestellt. Die Leistungsbegrenzung verwendet diesen Wert als Berechnungsgrundlage.",
+        "InverterEnabled": "Wechselrichter verwenden:",
+        "InverterEnabledHint": "Wechselrichter wird von SunSpec Schnittstelle verwendet.",
+        "ChannelAC": "AC Ausgang {num}",
+        "PowerLimit": "Leistungsbegrenzunh",
+        "OutputPhase": "Ausgang / Phasenzuordnung",
+        "PhaseAC": "Phase L{num}"
     },
     "configadmin": {
         "ConfigManagement": "Konfigurationsverwaltung",
