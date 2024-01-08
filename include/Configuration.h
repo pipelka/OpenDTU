@@ -30,10 +30,17 @@
 
 #define DEV_MAX_MAPPING_NAME_STRLEN 63
 
+#define SUNSPEC_MAX_MANUFACTURER_STRLEN 32
+#define SUNSPEC_MAX_MODEL_STRLEN 32
+
 struct CHANNEL_CONFIG_T {
     uint16_t MaxChannelPower;
     char Name[CHAN_MAX_NAME_STRLEN];
     float YieldTotalOffset;
+};
+
+struct CHANNEL_AC_CONFIG_T {
+    uint8_t Phase;
 };
 
 struct INVERTER_CONFIG_T {
@@ -49,6 +56,14 @@ struct INVERTER_CONFIG_T {
     bool ZeroYieldDayOnMidnight;
     bool YieldDayCorrection;
     CHANNEL_CONFIG_T channel[INV_MAX_CHAN_COUNT];
+};
+
+struct SUNSPEC_INVERTER_CONFIG_T {
+    uint64_t Serial{0};
+    bool Enabled{false};
+    uint16_t MaxPower{0};
+
+    CHANNEL_AC_CONFIG_T channel_ac[INV_MAX_CHAN_COUNT];
 };
 
 struct CONFIG_T {
@@ -154,6 +169,15 @@ struct CONFIG_T {
 
     INVERTER_CONFIG_T Inverter[INV_MAX_COUNT];
     char Dev_PinMapping[DEV_MAX_MAPPING_NAME_STRLEN + 1];
+
+    struct {
+        bool Enabled{false};
+        bool RemoteControl{false};
+        char Manufacturer[SUNSPEC_MAX_MANUFACTURER_STRLEN + 1];
+        char Model[SUNSPEC_MAX_MODEL_STRLEN + 1];
+        uint16_t PowerDivider{50};
+        SUNSPEC_INVERTER_CONFIG_T Inverter[INV_MAX_COUNT];
+    } SunSpec;
 };
 
 class ConfigurationClass {

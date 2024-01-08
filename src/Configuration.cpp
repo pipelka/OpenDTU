@@ -10,11 +10,10 @@
 #include <LittleFS.h>
 #include <nvs_flash.h>
 
-CONFIG_T config;
+CONFIG_T config{};
 
 void ConfigurationClass::init()
 {
-    memset(&config, 0x0, sizeof(config));
 }
 
 bool ConfigurationClass::write()
@@ -136,6 +135,27 @@ bool ConfigurationClass::write()
             chanData["name"] = config.Inverter[i].channel[c].Name;
             chanData["max_power"] = config.Inverter[i].channel[c].MaxChannelPower;
             chanData["yield_total_offset"] = config.Inverter[i].channel[c].YieldTotalOffset;
+        }
+    }
+
+    JsonObject sunspec = doc["sunspec"].to<JsonObject>();
+    sunspec["enabled"] = config.SunSpec.Enabled;
+    sunspec["remote_control"] = config.SunSpec.RemoteControl;
+    sunspec["manufacturer"] = config.SunSpec.Manufacturer;
+    sunspec["model"] = config.SunSpec.Model;
+    sunspec["power_divider"] = config.SunSpec.PowerDivider;
+
+    JsonArray sunspecinv = sunspec["invertes"].to<JsonArray>();
+    for (uint8_t i = 0; i < INV_MAX_COUNT; i++) {
+        JsonObject inv = sunspecinv.add<JsonObject>();
+        inv["enabled"] = config.SunSpec.Inverter[i].Enabled;
+        inv["max_power"] = config.SunSpec.Inverter[i].MaxPower;
+        inv["serial"] = config.SunSpec.Inverter[i].Serial;
+
+        JsonArray channel_ac = inv["channel_ac"].to<JsonArray>();
+        for (uint8_t c = 0; c < INV_MAX_CHAN_COUNT; c++) {
+            JsonObject chanData = channel_ac.add<JsonObject>();
+            chanData["phase"] = config.SunSpec.Inverter[i].channel_ac[c].Phase;
         }
     }
 
@@ -310,6 +330,21 @@ bool ConfigurationClass::read()
             config.Inverter[i].channel[c].YieldTotalOffset = channel[c]["yield_total_offset"] | 0.0f;
             strlcpy(config.Inverter[i].channel[c].Name, channel[c]["name"] | "", sizeof(config.Inverter[i].channel[c].Name));
         }
+    }
+
+    JsonObject sunspec = doc["sunspec"];
+    config.SunSpec.Enabled = sunspec["enabled"].as<bool>() | false;
+    config.SunSpec.RemoteControl = sunspec["remote_control"].as<bool>() | false;
+    config.SunSpec.PowerDivider = sunspec["power_divider"].as<uint16_t>() | 0;
+    strlcpy(config.SunSpec.Manufacturer, sunspec["manufacturer"] | "OpenDTU", sizeof(config.SunSpec.Manufacturer));
+    strlcpy(config.SunSpec.Model, sunspec["model"] | "SunSpec", sizeof(config.SunSpec.Model));
+
+    JsonArray sunspecinv = sunspec["inverters"];
+    for (uint8_t i = 0; i < INV_MAX_COUNT; i++) {
+        JsonObject inv = sunspecinv[i].as<JsonObject>();
+        config.SunSpec.Inverter[i].Enabled = inv["enabled"].as<bool>() | false;
+        config.SunSpec.Inverter[i].MaxPower = inv["max_power"].as<uint16_t>() | 0;
+        config.SunSpec.Inverter[i].Serial = inv["serial"].as<uint64_t>() | 0;
     }
 
     f.close();
