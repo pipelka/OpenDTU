@@ -7,6 +7,7 @@ import ErrorView from '@/views/ErrorView.vue';
 import FirmwareUpgradeView from '@/views/FirmwareUpgradeView.vue';
 import HomeView from '@/views/HomeView.vue';
 import InverterAdminView from '@/views/InverterAdminView.vue';
+import SunSpecAdminView from '@/views/SunSpecAdminView.vue';
 import LoginView from '@/views/LoginView.vue';
 import MaintenanceRebootView from '@/views/MaintenanceRebootView.vue';
 import MqttAdminView from '@/views/MqttAdminView.vue';
@@ -87,6 +88,11 @@ const router = createRouter({
         path: '/settings/inverter',
         name: 'Inverter Settings',
         component: InverterAdminView
+    },
+    {
+        path: '/settings/sunspec',
+        name: 'SunSpec Modbus',
+        component: SunSpecAdminView
     },
     {
         path: '/settings/dtu',
