@@ -94,4 +94,7 @@ enum WebApiError {
 
     HardwareBase = 12000,
     HardwarePinMappingLength,
+
+    SunSpecBase = 20000,
+    SunSpecSettingsChanged
 };
