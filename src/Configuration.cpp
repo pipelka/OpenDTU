@@ -10,10 +10,11 @@
 #include <LittleFS.h>
 #include <nvs_flash.h>
 
-CONFIG_T config{};
+CONFIG_T config;
 
 void ConfigurationClass::init()
 {
+    memset(&config, 0x0, sizeof(config));
 }
 
 bool ConfigurationClass::write()
@@ -345,6 +346,12 @@ bool ConfigurationClass::read()
         config.SunSpec.Inverter[i].Enabled = inv["enabled"] | false;
         config.SunSpec.Inverter[i].MaxPower = inv["max_power"] | 0;
         config.SunSpec.Inverter[i].Serial = inv["serial"] | 0;
+
+        JsonArray channel_ac = inv["channel_ac"];
+        for (uint8_t c = 0; c < INV_MAX_CHAN_COUNT; c++) {
+            JsonObject chanData = channel_ac[c].as<JsonObject>();
+            config.SunSpec.Inverter[i].channel_ac[c].Phase = chanData["phase"];
+        }
     }
 
     f.close();
