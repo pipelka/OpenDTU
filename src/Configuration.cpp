@@ -145,7 +145,7 @@ bool ConfigurationClass::write()
     sunspec["model"] = config.SunSpec.Model;
     sunspec["power_divider"] = config.SunSpec.PowerDivider;
 
-    JsonArray sunspecinv = sunspec["invertes"].to<JsonArray>();
+    JsonArray sunspecinv = sunspec["inverters"].to<JsonArray>();
     for (uint8_t i = 0; i < INV_MAX_COUNT; i++) {
         JsonObject inv = sunspecinv.add<JsonObject>();
         inv["enabled"] = config.SunSpec.Inverter[i].Enabled;
@@ -335,7 +335,7 @@ bool ConfigurationClass::read()
     JsonObject sunspec = doc["sunspec"];
     config.SunSpec.Enabled = sunspec["enabled"].as<bool>() | false;
     config.SunSpec.RemoteControl = sunspec["remote_control"].as<bool>() | false;
-    config.SunSpec.PowerDivider = sunspec["power_divider"].as<uint16_t>() | 0;
+    config.SunSpec.PowerDivider = sunspec["power_divider"].as<uint16_t>() | 50;
     strlcpy(config.SunSpec.Manufacturer, sunspec["manufacturer"] | "OpenDTU", sizeof(config.SunSpec.Manufacturer));
     strlcpy(config.SunSpec.Model, sunspec["model"] | "SunSpec", sizeof(config.SunSpec.Model));
 
