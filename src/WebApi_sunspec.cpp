@@ -27,7 +27,7 @@ void WebApiSunSpecClass::onSunSpecGet(AsyncWebServerRequest* request)
         return;
     }
 
-    AsyncJsonResponse* response = new AsyncJsonResponse(false, 100 * INV_MAX_COUNT);
+    AsyncJsonResponse* response = new AsyncJsonResponse();
     auto& root = response->getRoot();
 
     CONFIG_T& config = Configuration.get();
@@ -37,7 +37,7 @@ void WebApiSunSpecClass::onSunSpecGet(AsyncWebServerRequest* request)
     root["model"] = config.SunSpec.Model;
     root["power_divider"] = config.SunSpec.PowerDivider;
 
-    JsonArray data = root.createNestedArray("inverter");
+    JsonArray data = root["inverter"].to<JsonArray>();
 
     for (uint8_t i = 0; i < INV_MAX_COUNT; i++) {
         config.SunSpec.Inverter[i].Serial = config.Inverter[i].Serial;
@@ -46,7 +46,7 @@ void WebApiSunSpecClass::onSunSpecGet(AsyncWebServerRequest* request)
             continue;
         }
 
-        JsonObject obj = data.createNestedObject();
+        JsonObject obj = data.add<JsonObject>();
 
         obj["id"] = i;
         obj["name"] = String(config.Inverter[i].Name);
@@ -66,9 +66,9 @@ void WebApiSunSpecClass::onSunSpecGet(AsyncWebServerRequest* request)
             obj["max_power"] = (config.SunSpec.Inverter[i].MaxPower > 0) ? config.SunSpec.Inverter[i].MaxPower : inv->DevInfo()->getMaxPower();
         }
 
-        JsonArray channel_ac = obj.createNestedArray("channel_ac");
+        JsonArray channel_ac = obj["channel_ac"].to<JsonArray>();
         for (uint8_t c = 0; c < max_channels_ac; c++) {
-            JsonObject chanData = channel_ac.createNestedObject();
+            JsonObject chanData = channel_ac.add<JsonObject>();
             chanData["id"] = c;
             chanData["phase"] = config.SunSpec.Inverter[i].channel_ac[c].Phase;
         }
@@ -107,7 +107,7 @@ void WebApiSunSpecClass::onSunSpecPost(AsyncWebServerRequest* request)
         return;
     }
 
-    DynamicJsonDocument root(1024);
+    JsonDocument root;
     const DeserializationError error = deserializeJson(root, json);
 
     if (error) {
