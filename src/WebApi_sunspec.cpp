@@ -74,8 +74,7 @@ void WebApiSunSpecClass::onSunSpecGet(AsyncWebServerRequest* request)
         }
     }
 
-    response->setLength();
-    request->send(response);
+    WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
 }
 
 void WebApiSunSpecClass::onSunSpecPost(AsyncWebServerRequest* request)
@@ -84,44 +83,17 @@ void WebApiSunSpecClass::onSunSpecPost(AsyncWebServerRequest* request)
         return;
     }
 
-    bool reboot{false};
     AsyncJsonResponse* response = new AsyncJsonResponse();
-    auto& retMsg = response->getRoot();
-    retMsg["type"] = "warning";
-
-    if (!request->hasParam("data", true)) {
-        retMsg["message"] = "No values found!";
-        retMsg["code"] = WebApiError::GenericNoValueFound;
-        response->setLength();
-        request->send(response);
-        return;
-    }
-
-    const String json = request->getParam("data", true)->value();
-
-    if (json.length() > 1024) {
-        retMsg["message"] = "Data too large!";
-        retMsg["code"] = WebApiError::GenericDataTooLarge;
-        response->setLength();
-        request->send(response);
-        return;
-    }
-
     JsonDocument root;
-    const DeserializationError error = deserializeJson(root, json);
-
-    if (error) {
-        retMsg["message"] = "Failed to parse data!";
-        retMsg["code"] = WebApiError::GenericParseError;
-        response->setLength();
-        request->send(response);
+    if (!WebApi.parseRequestData(request, response, root)) {
         return;
     }
+
+    auto& retMsg = response->getRoot();
 
     auto& config = Configuration.get();
-
     auto sunspec_enabled = root["enabled"].as<bool>();
-    reboot |= (config.SunSpec.Enabled != sunspec_enabled);
+    bool reboot = (config.SunSpec.Enabled != sunspec_enabled);
 
     config.SunSpec.Enabled = sunspec_enabled;
     config.SunSpec.RemoteControl = root["remote_control"].as<bool>();
@@ -135,8 +107,7 @@ void WebApiSunSpecClass::onSunSpecPost(AsyncWebServerRequest* request)
     if (inverterArray.size() > INV_MAX_COUNT) {
         retMsg["message"] = "Invalid amount of max channel setting given!";
         retMsg["code"] = WebApiError::InverterInvalidMaxChannel;
-        response->setLength();
-        request->send(response);
+        WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
         return;
     }
 
@@ -144,16 +115,14 @@ void WebApiSunSpecClass::onSunSpecPost(AsyncWebServerRequest* request)
         if (!(item.containsKey("id") && item.containsKey("enabled") && item.containsKey("max_power") && item.containsKey("channel_ac"))) {
             retMsg["message"] = "Values are missing!";
             retMsg["code"] = WebApiError::GenericValueMissing;
-            response->setLength();
-            request->send(response);
+            WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
             return;
         }
 
         if (item["id"].as<uint8_t>() > INV_MAX_COUNT - 1) {
             retMsg["message"] = "Invalid ID specified!";
             retMsg["code"] = WebApiError::InverterInvalidId;
-            response->setLength();
-            request->send(response);
+            WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
             return;
         }
 
@@ -161,8 +130,7 @@ void WebApiSunSpecClass::onSunSpecPost(AsyncWebServerRequest* request)
         if (channelArrayAC.size() == 0 || channelArrayAC.size() > INV_MAX_CHAN_COUNT) {
             retMsg["message"] = "Invalid amount of max channel setting given!";
             retMsg["code"] = WebApiError::InverterInvalidMaxChannel;
-            response->setLength();
-            request->send(response);
+            WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
             return;
         }
 
@@ -178,7 +146,6 @@ void WebApiSunSpecClass::onSunSpecPost(AsyncWebServerRequest* request)
         }
     }
 
-
     if(reboot) {
         WebApi.writeConfig(retMsg, WebApiError::MaintenanceRebootTriggered, "Inverter SunSpec configuration changed!");
         Utils::restartDtu();
@@ -187,6 +154,5 @@ void WebApiSunSpecClass::onSunSpecPost(AsyncWebServerRequest* request)
         WebApi.writeConfig(retMsg, WebApiError::SunSpecSettingsChanged, "Inverter SunSpec configuration changed!");
     }
 
-    response->setLength();
-    request->send(response);
+    WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
 }
