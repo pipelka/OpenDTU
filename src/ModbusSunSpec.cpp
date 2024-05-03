@@ -387,7 +387,7 @@ void ModbusSunSpecClass::setPowerLimit(uint16_t limit_pct, uint16_t timeout_sec)
     uint16_t total_set_power = (total_max_power * limit_pct) / 100;
 
     // round total_set_power
-    total_set_power = (int)(total_set_power / power_divider) * power_divider;
+    total_set_power = (total_set_power / power_divider) * power_divider;
 
     // new limit_pct
     limit_pct = (total_set_power * 100) / total_max_power;
