@@ -378,13 +378,17 @@ void ModbusSunSpecClass::loop() {
 void ModbusSunSpecClass::setPowerLimit(uint16_t limit_pct, uint16_t timeout_sec) {
     const CONFIG_T& config = Configuration.get();
 
-    MessageOutput.println("--------------");
-    MessageOutput.println(" Power Limit");
-    MessageOutput.println("--------------");
-
     uint16_t power_divider = config.SunSpec.PowerDivider;
     uint16_t total_max_power = getTotalMaxPower();
     uint16_t total_set_power = (total_max_power * limit_pct) / 100;
+
+    if(total_max_power == 0 || power_divider == 0) {
+        return;
+    }
+
+    MessageOutput.println("--------------");
+    MessageOutput.println(" Power Limit");
+    MessageOutput.println("--------------");
 
     // round total_set_power
     total_set_power = (total_set_power / power_divider) * power_divider;
