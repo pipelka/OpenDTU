@@ -148,10 +148,16 @@ bool ConfigurationClass::write()
 
     JsonArray sunspecinv = sunspec["inverters"].to<JsonArray>();
     for (uint8_t i = 0; i < INV_MAX_COUNT; i++) {
+        auto serial = config.SunSpec.Inverter[i].Serial;
+
+        if(serial == 0) {
+            continue;
+        }
+
         JsonObject inv = sunspecinv.add<JsonObject>();
         inv["enabled"] = config.SunSpec.Inverter[i].Enabled;
         inv["max_power"] = config.SunSpec.Inverter[i].MaxPower;
-        inv["serial"] = config.SunSpec.Inverter[i].Serial;
+        inv["serial"] = serial;
 
         JsonArray channel_ac = inv["channel_ac"].to<JsonArray>();
         for (uint8_t c = 0; c < INV_MAX_CHAN_COUNT; c++) {
@@ -163,6 +169,8 @@ bool ConfigurationClass::write()
     if (!Utils::checkJsonAlloc(doc, __FUNCTION__, __LINE__)) {
         return false;
     }
+
+    serializeJsonPretty(doc, MessageOutput);
 
     // Serialize JSON to file
     if (serializeJson(doc, f) == 0) {
@@ -189,6 +197,8 @@ bool ConfigurationClass::read()
     if (!Utils::checkJsonAlloc(doc, __FUNCTION__, __LINE__)) {
         return false;
     }
+
+    serializeJsonPretty(doc, MessageOutput);
 
     JsonObject cfg = doc["cfg"];
     config.Cfg.Version = cfg["version"] | CONFIG_VERSION;
@@ -343,9 +353,15 @@ bool ConfigurationClass::read()
     JsonArray sunspecinv = sunspec["inverters"];
     for (uint8_t i = 0; i < INV_MAX_COUNT; i++) {
         JsonObject inv = sunspecinv[i].as<JsonObject>();
+        uint64_t serial = inv["serial"];
+
+        if(serial == 0) {
+            continue;
+        }
+
         config.SunSpec.Inverter[i].Enabled = inv["enabled"] | false;
         config.SunSpec.Inverter[i].MaxPower = inv["max_power"] | 0;
-        config.SunSpec.Inverter[i].Serial = inv["serial"] | 0;
+        config.SunSpec.Inverter[i].Serial = serial;
 
         JsonArray channel_ac = inv["channel_ac"];
         for (uint8_t c = 0; c < INV_MAX_CHAN_COUNT; c++) {
