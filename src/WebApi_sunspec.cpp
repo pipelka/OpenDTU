@@ -50,7 +50,7 @@ void WebApiSunSpecClass::onSunSpecGet(AsyncWebServerRequest* request)
         obj["id"] = i;
         obj["name"] = String(config.Inverter[i].Name);
         obj["order"] = config.Inverter[i].Order;
-        obj["serial"] = config.SunSpec.Inverter[i].Serial;
+        obj["serial"] = config.Inverter[i].Serial;
         obj["enabled"] = config.SunSpec.Inverter[i].Enabled;
 
         auto inv = Hoymiles.getInverterBySerial(config.Inverter[i].Serial);
@@ -89,61 +89,64 @@ void WebApiSunSpecClass::onSunSpecPost(AsyncWebServerRequest* request)
     }
 
     auto& retMsg = response->getRoot();
+    bool reboot = false;
 
-    auto guard = Configuration.getWriteGuard();
-    auto& config = guard.getConfig();
+    {
+        auto guard = Configuration.getWriteGuard();
+        auto& config = guard.getConfig();
 
-    auto sunspec_enabled = root["enabled"].as<bool>();
-    bool reboot = (config.SunSpec.Enabled != sunspec_enabled);
+        auto sunspec_enabled = root["enabled"].as<bool>();
+        reboot = (config.SunSpec.Enabled != sunspec_enabled);
 
-    config.SunSpec.Enabled = sunspec_enabled;
-    config.SunSpec.RemoteControl = root["remote_control"].as<bool>();
-    config.SunSpec.PowerDivider = root["power_divider"].as<uint16_t>();
-    strlcpy(config.SunSpec.Manufacturer, root["manufacturer"], sizeof(config.SunSpec.Manufacturer));
-    strlcpy(config.SunSpec.Model, root["model"], sizeof(config.SunSpec.Model));
+        config.SunSpec.Enabled = sunspec_enabled;
+        config.SunSpec.RemoteControl = root["remote_control"].as<bool>();
+        config.SunSpec.PowerDivider = root["power_divider"].as<uint16_t>();
+        strlcpy(config.SunSpec.Manufacturer, root["manufacturer"], sizeof(config.SunSpec.Manufacturer));
+        strlcpy(config.SunSpec.Model, root["model"], sizeof(config.SunSpec.Model));
 
-    ModbusSunSpec.setManufacturerModel(config.SunSpec.Manufacturer, config.SunSpec.Model);
+        ModbusSunSpec.setManufacturerModel(config.SunSpec.Manufacturer, config.SunSpec.Model);
 
-    JsonArray inverterArray = root["inverter"].as<JsonArray>();
-    if (inverterArray.size() > INV_MAX_COUNT) {
-        retMsg["message"] = "Invalid amount of max channel setting given!";
-        retMsg["code"] = WebApiError::InverterInvalidMaxChannel;
-        WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
-        return;
-    }
-
-    for (JsonVariant item : inverterArray) {
-        if (!(item.containsKey("id") && item.containsKey("enabled") && item.containsKey("max_power") && item.containsKey("channel_ac"))) {
-            retMsg["message"] = "Values are missing!";
-            retMsg["code"] = WebApiError::GenericValueMissing;
-            WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
-            return;
-        }
-
-        if (item["id"].as<uint8_t>() > INV_MAX_COUNT - 1) {
-            retMsg["message"] = "Invalid ID specified!";
-            retMsg["code"] = WebApiError::InverterInvalidId;
-            WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
-            return;
-        }
-
-        JsonArray channelArrayAC = item["channel_ac"].as<JsonArray>();
-        if (channelArrayAC.size() == 0 || channelArrayAC.size() > INV_MAX_CHAN_COUNT) {
+        JsonArray inverterArray = root["inverter"].as<JsonArray>();
+        if (inverterArray.size() > INV_MAX_COUNT) {
             retMsg["message"] = "Invalid amount of max channel setting given!";
             retMsg["code"] = WebApiError::InverterInvalidMaxChannel;
             WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
             return;
         }
 
-        SUNSPEC_INVERTER_CONFIG_T& inverter = config.SunSpec.Inverter[item["id"].as<uint8_t>()];
+        for (JsonVariant item : inverterArray) {
+            if (!(item.containsKey("id") && item.containsKey("enabled") && item.containsKey("max_power") && item.containsKey("channel_ac"))) {
+                retMsg["message"] = "Values are missing!";
+                retMsg["code"] = WebApiError::GenericValueMissing;
+                WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
+                return;
+            }
 
-        inverter.Enabled = item["enabled"].as<bool>() | false;
-        inverter.MaxPower = item["max_power"].as<uint16_t>() | 0;
-        inverter.Serial = item["serial"].as<uint64_t>() | 0;
+            if (item["id"].as<uint8_t>() > INV_MAX_COUNT - 1) {
+                retMsg["message"] = "Invalid ID specified!";
+                retMsg["code"] = WebApiError::InverterInvalidId;
+                WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
+                return;
+            }
 
-        for (JsonVariant channel : channelArrayAC) {
-            auto id = channel["id"].as<uint8_t>();
-            inverter.channel_ac[id].Phase = channel["phase"].as<uint8_t>();
+            JsonArray channelArrayAC = item["channel_ac"].as<JsonArray>();
+            if (channelArrayAC.size() == 0 || channelArrayAC.size() > INV_MAX_CHAN_COUNT) {
+                retMsg["message"] = "Invalid amount of max channel setting given!";
+                retMsg["code"] = WebApiError::InverterInvalidMaxChannel;
+                WebApi.sendJsonResponse(request, response, __FUNCTION__, __LINE__);
+                return;
+            }
+
+            SUNSPEC_INVERTER_CONFIG_T& inverter = config.SunSpec.Inverter[item["id"].as<uint8_t>()];
+
+            inverter.Enabled = item["enabled"].as<bool>() | false;
+            inverter.MaxPower = item["max_power"].as<uint16_t>() | 0;
+            inverter.Serial = item["serial"].as<uint64_t>() | 0;
+
+            for (JsonVariant channel : channelArrayAC) {
+                auto id = channel["id"].as<uint8_t>();
+                inverter.channel_ac[id].Phase = channel["phase"].as<uint8_t>();
+            }
         }
     }
 
