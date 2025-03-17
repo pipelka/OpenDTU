@@ -343,12 +343,12 @@ void ModbusSunSpecClass::loop() {
         }
     }
 
-    auto total_current = phases[0].current + phases[1].current + phases[2].current;
-    auto total_power = phases[0].power + phases[1].power + phases[2].power;
-    auto count = (phases[0].count + phases[1].count+ phases[2].count);
-    auto power_factor = (count > 0) ? (phases[0].power_factor + phases[1].power_factor + phases[2].power_factor) / count : 0;
-    auto frequency = (count > 0) ? (phases[0].frequency + phases[1].frequency + phases[2].frequency) / count : 0;
-    auto block = 100 + getPhaseCount();
+    uint16_t total_current = phases[0].current + phases[1].current + phases[2].current;
+    uint16_t total_power = phases[0].power + phases[1].power + phases[2].power;
+    uint16_t count = (phases[0].count + phases[1].count+ phases[2].count);
+    uint16_t power_factor = (count > 0) ? (phases[0].power_factor + phases[1].power_factor + phases[2].power_factor) / count : 0;
+    uint16_t frequency = (count > 0) ? (phases[0].frequency + phases[1].frequency + phases[2].frequency) / count : 0;
+    uint16_t block = 100 + getPhaseCount();
 
     HregU16(40069, block);                  // Phase Configuration
     HregU16(40071, total_current);          // Total Current AC
