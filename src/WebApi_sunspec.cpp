@@ -141,7 +141,6 @@ void WebApiSunSpecClass::onSunSpecPost(AsyncWebServerRequest* request)
 
             inverter.Enabled = item["enabled"].as<bool>() | false;
             inverter.MaxPower = item["max_power"].as<uint16_t>() | 0;
-            inverter.Serial = item["serial"].as<uint64_t>() | 0;
 
             for (JsonVariant channel : channelArrayAC) {
                 auto id = channel["id"].as<uint8_t>();
