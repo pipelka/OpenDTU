@@ -6,37 +6,66 @@
 
         <form @submit="saveSunSpecConfig">
             <CardElement :text="$t('sunspecadmin.Modbus')" textVariant="text-bg-primary">
-                <InputElement :label="$t('sunspecadmin.Enabled')"
-                    v-model="config.enabled"
-                    type="checkbox" wide/>
+                <InputElement :label="$t('sunspecadmin.Enabled')" v-model="config.enabled" type="checkbox" wide />
 
-                <InputElement :label="$t('sunspecadmin.RemoteControl')"
+                <InputElement
+                    :label="$t('sunspecadmin.RemoteControl')"
                     v-model="config.remote_control"
-                    type="checkbox" wide/>
+                    type="checkbox"
+                    wide
+                />
 
-                <InputElement :label="$t('sunspecadmin.PowerDivider')" v-show="config.remote_control"
+                <InputElement
+                    :label="$t('sunspecadmin.PowerDivider')"
+                    v-show="config.remote_control"
                     v-model="config.power_divider"
-                    type="number" min="10" max="1000"
-                    :tooltip="$t('sunspecadmin.PowerDividerHint')" wide/>
+                    type="number"
+                    min="10"
+                    max="1000"
+                    :tooltip="$t('sunspecadmin.PowerDividerHint')"
+                    wide
+                />
 
-                <InputElement :label="$t('sunspecadmin.Manufacturer')"
+                <InputElement
+                    :label="$t('sunspecadmin.Manufacturer')"
                     v-model="config.manufacturer"
-                    type="text" maxlength="32" wide/>
+                    type="text"
+                    maxlength="32"
+                    wide
+                />
 
-                <InputElement :label="$t('sunspecadmin.Model')"
+                <InputElement
+                    :label="$t('sunspecadmin.Model')"
                     v-model="config.model"
-                    type="text" maxlength="32" wide/>
+                    type="text"
+                    maxlength="32"
+                    wide
+                />
 
-                    <CardElement v-for="(inv, index) in config.inverter" :key="`${index}`" :text="inv.name" textVariant="text-bg-secondary">
-                    <InputElement :label="$t('sunspecadmin.InverterEnabled')"
+                <CardElement
+                    v-for="(inv, index) in config.inverter"
+                    :key="`${index}`"
+                    :text="inv.name"
+                    textVariant="text-bg-secondary"
+                >
+                    <InputElement
+                        :label="$t('sunspecadmin.InverterEnabled')"
                         v-model="inv.enabled"
                         type="checkbox"
-                        :tooltip="$t('sunspecadmin.InverterEnabledHint')" wide/>
+                        :tooltip="$t('sunspecadmin.InverterEnabledHint')"
+                        wide
+                    />
 
-                    <InputElement :label="$t('sunspecadmin.MaxPower')" v-show="config.remote_control"
+                    <InputElement
+                        :label="$t('sunspecadmin.MaxPower')"
+                        v-show="config.remote_control"
                         v-model="inv.max_power"
-                        type="number" min="0" max="20000"
-                        :tooltip="$t('sunspecadmin.MaxPowerHint')" wide/>
+                        type="number"
+                        min="0"
+                        max="20000"
+                        :tooltip="$t('sunspecadmin.MaxPowerHint')"
+                        wide
+                    />
 
                     <!-- AC Channel Phase Assignment -->
                     <div v-for="(ch, index) in inv.channel_ac" :key="`${index}`">
@@ -55,16 +84,14 @@
                     </div>
                 </CardElement>
             </CardElement>
-            <FormFooter @reload="getSunSpecConfig"/>
+            <FormFooter @reload="getSunSpecConfig" />
         </form>
-
     </BasePage>
-
 </template>
 
 <script lang="ts">
 import BasePage from '@/components/BasePage.vue';
-import BootstrapAlert from "@/components/BootstrapAlert.vue";
+import BootstrapAlert from '@/components/BootstrapAlert.vue';
 import CardElement from '@/components/CardElement.vue';
 import FormFooter from '@/components/FormFooter.vue';
 import InputElement from '@/components/InputElement.vue';
@@ -91,7 +118,7 @@ declare interface Config {
     manufacturer: string;
     model: string;
     power_divider: number;
-    inverter: Array<Inverter>
+    inverter: Array<Inverter>;
 }
 
 declare interface AlertResponse {
@@ -119,18 +146,16 @@ export default defineComponent({
                 { key: 1, value: 2 },
                 { key: 2, value: 3 },
             ],
-
         };
     },
-    mounted() {
-    },
+    mounted() {},
     created() {
         this.getSunSpecConfig();
     },
     methods: {
         getSunSpecConfig() {
             this.dataLoading = true;
-            fetch("/api/sunspec/config", { headers: authHeader() })
+            fetch('/api/sunspec/config', { headers: authHeader() })
                 .then((response) => handleResponse(response, this.$emitter, this.$router))
                 .then((data) => {
                     this.config = {
@@ -139,9 +164,9 @@ export default defineComponent({
                         power_divider: data.power_divider,
                         manufacturer: data.manufacturer,
                         model: data.model,
-                        inverter: data.inverter.slice().sort((a : Inverter, b: Inverter) => {
+                        inverter: data.inverter.slice().sort((a: Inverter, b: Inverter) => {
                             return a.order - b.order;
-                        })
+                        }),
                     };
                     this.dataLoading = false;
                 });
@@ -150,10 +175,10 @@ export default defineComponent({
             e.preventDefault();
 
             const formData = new FormData();
-            formData.append("data", JSON.stringify(this.config));
+            formData.append('data', JSON.stringify(this.config));
 
-            fetch("/api/sunspec/config", {
-                method: "POST",
+            fetch('/api/sunspec/config', {
+                method: 'POST',
                 headers: authHeader(),
                 body: formData,
             })

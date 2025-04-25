@@ -100,7 +100,7 @@ const router = createRouter({
         {
             path: '/settings/sunspec',
             name: 'SunSpec Modbus',
-            component: SunSpecAdminView
+            component: SunSpecAdminView,
         },
         {
             path: '/settings/dtu',
