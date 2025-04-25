@@ -246,7 +246,7 @@ void ModbusSunSpecClass::loopPowerLimit() {
                 limit.serial = 0;
             }
             else {
-                limit.power = conf->MaxPower;
+                limit.power = 200; //conf->MinPower;
                 limit.pending = true;
             }
         }
