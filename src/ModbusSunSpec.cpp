@@ -124,7 +124,7 @@ void ModbusSunSpecClass::init(Scheduler& scheduler) {
     HregU16(40081, 0);          // AC Voltage CN
     HregS16(40082, -1);         // AC Voltage Scale Factor
     HregS16(40083, 0);          // AC Total Power
-    HregS16(40084, -1);         // AC Total Power Scale Factor
+    HregS16(40084, 0);          // AC Total Power Scale Factor
     HregU16(40085, 0);          // AC Frequency
     HregS16(40086, -1);         // AC Frequency Scale Factor
     HregS16(40087, 0);          // AC Apparent Power
@@ -140,7 +140,7 @@ void ModbusSunSpecClass::init(Scheduler& scheduler) {
     HregU16(40098, 0);          // DC Voltage
     HregS16(40099, -1);         // DC Voltage Factor
     HregS16(40100, 0);          // DC Power
-    HregS16(40101, -1);         // DC Power Factor
+    HregS16(40101, 0);          // DC Power Factor
     HregS16(40102, 0);          // Cabinet Temperature
     HregS16(40103, 0);          // Heat Sink Temperature
     HregS16(40104, 0);          // Transformer Temperature
@@ -323,7 +323,7 @@ void ModbusSunSpecClass::loop() {
                     auto phase = conf->channel_ac[c].Phase;
                     phases[phase].current += (stats->getChannelFieldValue(t, c, FLD_IAC) * 100);
                     phases[phase].voltage = max(phases[phase].voltage, (uint16_t)(stats->getChannelFieldValue(t, c, FLD_UAC) * 10));
-                    phases[phase].power += (uint16_t)(stats->getChannelFieldValue(t, c, FLD_PAC) * 10);
+                    phases[phase].power += (uint16_t)(stats->getChannelFieldValue(t, c, FLD_PAC));
                     phases[phase].power_factor += (uint16_t)(stats->getChannelFieldValue(t, c, FLD_PF) * 100);
                     phases[phase].frequency += (uint16_t)(stats->getChannelFieldValue(t, c, FLD_F) * 10);
                     phases[phase].count++;
@@ -332,7 +332,7 @@ void ModbusSunSpecClass::loop() {
                 if (t == TYPE_DC) {
                     total_current_dc += (stats->getChannelFieldValue(t, c, FLD_IDC) * 100);
                     max_voltage_dc = max(max_voltage_dc, (uint16_t)(stats->getChannelFieldValue(t, c, FLD_UDC) * 10));
-                    total_power_dc += (uint16_t)(stats->getChannelFieldValue(t, c, FLD_PDC) * 10);
+                    total_power_dc += (uint16_t)(stats->getChannelFieldValue(t, c, FLD_PDC));
                 }
 
                 if (t == TYPE_INV) {
@@ -343,12 +343,12 @@ void ModbusSunSpecClass::loop() {
         }
     }
 
-    uint16_t total_current = phases[0].current + phases[1].current + phases[2].current;
-    uint16_t total_power = phases[0].power + phases[1].power + phases[2].power;
-    uint16_t count = (phases[0].count + phases[1].count+ phases[2].count);
-    uint16_t power_factor = (count > 0) ? (phases[0].power_factor + phases[1].power_factor + phases[2].power_factor) / count : 0;
-    uint16_t frequency = (count > 0) ? (phases[0].frequency + phases[1].frequency + phases[2].frequency) / count : 0;
-    uint16_t block = 100 + getPhaseCount();
+    auto total_current = phases[0].current + phases[1].current + phases[2].current;
+    auto total_power = phases[0].power + phases[1].power + phases[2].power;
+    auto count = (phases[0].count + phases[1].count+ phases[2].count);
+    auto power_factor = (count > 0) ? (phases[0].power_factor + phases[1].power_factor + phases[2].power_factor) / count : 0;
+    auto frequency = (count > 0) ? (phases[0].frequency + phases[1].frequency + phases[2].frequency) / count : 0;
+    auto block = 100 + getPhaseCount();
 
     HregU16(40069, block);                  // Phase Configuration
     HregU16(40071, total_current);          // Total Current AC
@@ -366,7 +366,7 @@ void ModbusSunSpecClass::loop() {
     HregU16(40091, power_factor);           // Power Factor
     HregS32(40093, total_energy);           // Total Energy kWh
     HregU16(40096, total_current_dc);       // Total Current DC
-    HregU16(40100, total_power_dc);         // Total Power DC
+    HregS16(40100, total_power_dc);         // Total Power DC
     HregU16(40098, max_voltage_dc);         // Max Voltage DC
     HregU16(40102, max_temp);               // Temperature
     HregU16(40103, max_temp);               // Temperature
