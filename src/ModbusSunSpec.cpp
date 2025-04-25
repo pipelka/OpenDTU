@@ -224,7 +224,7 @@ void ModbusSunSpecClass::init(Scheduler& scheduler) {
 }
 
 void ModbusSunSpecClass::loopPowerLimit() {
-   int32_t now = (int32_t)millis();
+   auto now = millis();
 
     for (auto &limit : _limit) {
         if(limit.serial == 0) {
@@ -322,22 +322,22 @@ void ModbusSunSpecClass::loop() {
                 if (t == TYPE_AC) {
                     auto phase = conf->channel_ac[c].Phase;
                     phases[phase].current += (stats->getChannelFieldValue(t, c, FLD_IAC) * 100);
-                    phases[phase].voltage = max(phases[phase].voltage, (uint16_t)(stats->getChannelFieldValue(t, c, FLD_UAC) * 10));
-                    phases[phase].power += (uint16_t)(stats->getChannelFieldValue(t, c, FLD_PAC));
-                    phases[phase].power_factor += (uint16_t)(stats->getChannelFieldValue(t, c, FLD_PF) * 100);
-                    phases[phase].frequency += (uint16_t)(stats->getChannelFieldValue(t, c, FLD_F) * 10);
+                    phases[phase].voltage = max(phases[phase].voltage, static_cast<uint16_t>(stats->getChannelFieldValue(t, c, FLD_UAC) * 10));
+                    phases[phase].power += static_cast<uint16_t>(stats->getChannelFieldValue(t, c, FLD_PAC));
+                    phases[phase].power_factor += static_cast<uint16_t>(stats->getChannelFieldValue(t, c, FLD_PF) * 100);
+                    phases[phase].frequency += static_cast<uint16_t>(stats->getChannelFieldValue(t, c, FLD_F) * 10);
                     phases[phase].count++;
                 }
 
                 if (t == TYPE_DC) {
                     total_current_dc += (stats->getChannelFieldValue(t, c, FLD_IDC) * 100);
-                    max_voltage_dc = max(max_voltage_dc, (uint16_t)(stats->getChannelFieldValue(t, c, FLD_UDC) * 10));
-                    total_power_dc += (uint16_t)(stats->getChannelFieldValue(t, c, FLD_PDC));
+                    max_voltage_dc = max(max_voltage_dc, static_cast<uint16_t>(stats->getChannelFieldValue(t, c, FLD_UDC) * 10));
+                    total_power_dc += static_cast<uint16_t>(stats->getChannelFieldValue(t, c, FLD_PDC));
                 }
 
                 if (t == TYPE_INV) {
-                    total_energy += (uint32_t)(stats->getChannelFieldValue(t, c, FLD_YT) * 10 * 1000); // kWh -> Wh
-                    max_temp = max(max_temp, (int16_t)(stats->getChannelFieldValue(t, c, FLD_T) * 10));
+                    total_energy += static_cast<uint32_t>(stats->getChannelFieldValue(t, c, FLD_YT) * 10 * 1000); // kWh -> Wh
+                    max_temp = max(max_temp, static_cast<int16_t>(stats->getChannelFieldValue(t, c, FLD_T) * 10));
                 }
             }
         }
